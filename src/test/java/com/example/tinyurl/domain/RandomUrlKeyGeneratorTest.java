@@ -1,14 +1,28 @@
 package com.example.tinyurl.domain;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class RandomUrlKeyGeneratorTest {
 
-    RandomUrlKeyGenerator randomUrlKeyGenerator = new RandomUrlKeyGenerator();
+    @Mock
+    TinyUrlRepository tinyUrlRepository;
+
+    @InjectMocks
+    RandomUrlKeyGenerator randomUrlKeyGenerator;
 
     @Test
     void Random_key의_길이는_7글자다() {
@@ -51,5 +65,53 @@ class RandomUrlKeyGeneratorTest {
                 .isNotNull()
                 .isNotEmpty()
                 .isNotBlank();
+    }
+
+    @Test
+    void 중복되지_않는_키를_생성한다() {
+        // given
+        given(tinyUrlRepository.existsByTinyUrlKey(anyString()))
+                .willReturn(false);  // 항상 중복되지 않음
+
+        // when
+        String key = randomUrlKeyGenerator.getUniqueTinyUrlKey();
+
+        // then
+        assertThat(key)
+                .matches("[A-Za-z0-9]{7}")
+                .hasSize(7);
+        verify(tinyUrlRepository).existsByTinyUrlKey(key);
+    }
+
+    @Test
+    void 연속으로_5번_중복되면_예외가_발생한다() {
+        // given
+        given(tinyUrlRepository.existsByTinyUrlKey(anyString()))
+                .willReturn(true);  // 항상 중복됨
+
+        // when & then
+        assertThatThrownBy(() -> randomUrlKeyGenerator.getUniqueTinyUrlKey())
+                .isInstanceOf(LackOfShortenUrlKeyException.class);
+
+        verify(tinyUrlRepository, times(5))
+                .existsByTinyUrlKey(anyString());
+    }
+
+    @Test
+    void 중복_발생_후_재시도하여_성공한다() {
+        // given
+        given(tinyUrlRepository.existsByTinyUrlKey(anyString()))
+                .willReturn(true)   // 첫 번째 시도: 중복
+                .willReturn(false); // 두 번째 시도: 성공
+
+        // when
+        String key = randomUrlKeyGenerator.getUniqueTinyUrlKey();
+
+        // then
+        assertThat(key)
+                .matches("[A-Za-z0-9]{7}")
+                .hasSize(7);
+        verify(tinyUrlRepository, times(2))
+                .existsByTinyUrlKey(anyString());
     }
 }
