@@ -4,7 +4,11 @@ import com.example.tinyurl.domain.TinyUrl;
 import com.example.tinyurl.domain.TinyUrlRepository;
 import com.example.tinyurl.domain.exception.UrlKeyNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 @RequiredArgsConstructor
 public class TinyUrlCoreRepository implements TinyUrlRepository {
 
@@ -24,5 +28,15 @@ public class TinyUrlCoreRepository implements TinyUrlRepository {
     public TinyUrl findByTinyUrlKey(String tinyUrlKey) {
         return tinyUrlJpaRepository.findByTinyUrlKey(tinyUrlKey)
                 .orElseThrow(UrlKeyNotFoundException::new);
+    }
+
+    @Override
+    public void deleteAll() {
+        tinyUrlJpaRepository.deleteAllInBatch();
+    }
+
+    @Override
+    public List<TinyUrl> findAll() {
+        return tinyUrlJpaRepository.findAll();
     }
 }
