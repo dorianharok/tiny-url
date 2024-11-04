@@ -20,10 +20,14 @@ public class TinyUrl {
     @Column(nullable = false)
     private Long redirectCount;
 
-    public TinyUrl(String originalUrl, String tinyUrlKey) {
+    private TinyUrl(String originalUrl, String tinyUrlKey) {
         this.originalUrl = originalUrl;
         this.tinyUrlKey = tinyUrlKey;
         this.redirectCount = 0L;
+    }
+
+    public static TinyUrl of(String originalUrl, String tinyUrlKey) {
+        return new TinyUrl(originalUrl, tinyUrlKey);
     }
 
     public void incrementRedirectCount() {
