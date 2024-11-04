@@ -11,7 +11,7 @@ public class RandomUrlKeyGenerator implements UrlKeyGenerator {
     private static final int URL_LENGTH = 7;
 
     @Override
-    public String encode() {
+    public String generate() {
         StringBuilder sb = new StringBuilder();
         SecureRandom random = new SecureRandom();
         for (int i = 0; i < URL_LENGTH; i++) {
