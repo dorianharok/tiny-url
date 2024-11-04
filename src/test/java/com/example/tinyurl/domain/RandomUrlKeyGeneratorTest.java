@@ -1,5 +1,6 @@
 package com.example.tinyurl.domain;
 
+import com.example.tinyurl.domain.exception.LackOfShortenUrlKeyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

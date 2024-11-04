@@ -1,5 +1,6 @@
 package com.example.tinyurl.domain;
 
+import com.example.tinyurl.domain.exception.LackOfShortenUrlKeyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
